@@ -61,7 +61,7 @@ class Choice(models.Model):
         return self.choice_text
 
 class myUser(AbstractUser):
-    avatar=models.CharField(max_length=255)
+    avatar=models.CharField(max_length=255,null=True)
 
 
 class UserTest(models.Model):

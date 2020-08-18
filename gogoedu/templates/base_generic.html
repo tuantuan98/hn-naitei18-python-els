@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% block title %}<title>Gogoedu</title>{% endblock %}
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="Unicat project">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% load static %}
+{% block css %}{% endblock %}
+	
+</head>
+<body>
+	<div class="super_container">
+	{% include "header.html" %}
+	{% block content %}{% endblock %}
+	
+	<footer class="footer">
+		{% include "footer.html" %}
+	</footer>
+</div>
+{% block plugin %}{% endblock%}
+</body>
+</html>
