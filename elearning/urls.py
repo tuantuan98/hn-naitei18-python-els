@@ -22,8 +22,21 @@ from django.views.generic import RedirectView
 # Use static() to add url mapping to serve static files during development (only)
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.conf.urls.i18n import i18n_patterns
+from django.utils.translation import gettext_lazy as _
+from gogoedu.views import change_language
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('gogoedu/',include('gogoedu.urls')),
+    path('change_language/', 
+         change_language, 
+         name='change_language')
 ]
+
+urlpatterns += i18n_patterns(
+    path('admin/', admin.site.urls),
+    path('',include('gogoedu.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    prefix_default_language=False,
+)

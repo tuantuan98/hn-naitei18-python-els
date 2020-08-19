@@ -7,18 +7,23 @@
     <meta name="description" content="Unicat project">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/bootstrap4/bootstrap.min.css' %}">
+    <link href="{% static 'plugins/font-awesome-4.7.0/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
     {% block css %}{% endblock %}
 
 </head>
 <body>
     <div class="super_container">
         {% include "header.html" %}
+        
         {% block content %}{% endblock %}
 
-        <footer class="footer">
-        	{% include "footer.html" %}
-        </footer>
+        {% include "footer.html" %}
+        
     </div>
-    {% block plugin %}{% endblock%}
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'styles/bootstrap4/popper.js' %}"></script>
+<script src="{% static 'styles/bootstrap4/bootstrap.min.js' %}"></script>
+{% block plugin %}{% endblock%}
 </body>
 </html>
