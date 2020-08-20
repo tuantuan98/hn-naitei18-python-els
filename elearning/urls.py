@@ -29,14 +29,13 @@ from gogoedu.views import change_language
 
 
 urlpatterns = [
-    path('change_language/', 
-         change_language, 
-         name='change_language')
-]
+    path('change_language/', change_language, name='change_language')
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
-    path('',include('gogoedu.urls')),
+    path('gogoedu/', include('gogoedu.urls')),
+    path('', RedirectView.as_view(url='gogoedu/')),
     path('accounts/', include('django.contrib.auth.urls')),
     prefix_default_language=False,
 )
