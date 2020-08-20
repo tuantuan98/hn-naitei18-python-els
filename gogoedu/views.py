@@ -1,13 +1,15 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from .forms import RegisterForm
-from gogoedu.models import myUser
+from gogoedu.models import myUser, Lesson, Word 
 from django.views import generic
 from django.conf import settings
 from django.contrib.auth import login, authenticate
-
-
+from django.template import loader
+from django.shortcuts import render
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic.list import MultipleObjectMixin
 def index(request):
     return render(request, 'index.html')
 
@@ -29,8 +31,7 @@ def change_language(request):
             response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
     return response
 
-
-class Profile(generic.DetailView):
+class Profile(generic.DetailView,MultipleObjectMixin):
     model = myUser
 
 
@@ -48,3 +49,11 @@ def register(request):
         form = RegisterForm()
 
     return render(request, "registration/register.html", {"form": form})
+
+class Lesson_detail(generic.DetailView,MultipleObjectMixin):
+    model = Lesson
+    paginate_by = 2
+    def get_context_data(self, **kwargs):
+        object_list = Word.objects.filter(lesson=self.get_object())
+        context = super(Lesson_detail, self).get_context_data(object_list=object_list, **kwargs)
+        return context

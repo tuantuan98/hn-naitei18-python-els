@@ -18,6 +18,7 @@ class Catagory(models.Model):
 class Lesson(models.Model):
     catagory = models.ForeignKey('Catagory',on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=255)
+    description = models.TextField(null= True)
 
     def __str__(self):
         """String for representing the Model object."""

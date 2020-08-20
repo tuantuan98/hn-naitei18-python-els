@@ -5,4 +5,5 @@ urlpatterns = [
 	path('', views.index, name='index'),
 	path('register/', views.register, name='register'),
 	path('profile/<int:pk>', views.Profile.as_view(), name='profile-detail'),
+	path('lesson/<int:pk>', views.Lesson_detail.as_view(), name='lesson-detail'),
 ]
