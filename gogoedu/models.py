@@ -4,13 +4,16 @@ import datetime
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
-
+from django.urls import reverse
 
 class Catagory(models.Model):
     name=models.CharField(max_length=255)
     def __str__(self):
         """String for representing the Model object."""
         return self.name
+    def get_absolute_url(self):
+        """Returns the url to access a detail record for this book."""
+        return reverse('lesson', args=[str(self.id)])
 
 
 
