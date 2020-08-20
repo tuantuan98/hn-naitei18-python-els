@@ -22,9 +22,9 @@
 									</li>
 								</ul>
 								{% if user.is_authenticated %}
-								<div class="top_bar_login ml-auto">
-									<div class="login_button"><a href="{% url 'logout' %}">{{ user.get_username }}</a></div>
-								</div>   									
+									<div class="login_button" style="margin-left: 400px;"><a href="{% url 'logout' %}">Log out</a></div>
+									<div class="login_button"><a href="{% url 'profile-detail' user.id %}">see proflie</a></div>
+  									
 								{% else %}
 								<div class="top_bar_login ml-auto">
 									<div class="login_button"><a href="{% url 'login' %}?next={{request.path}}">{% trans 'Register or Login' %}</a></div>

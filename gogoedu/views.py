@@ -4,6 +4,8 @@ from django.conf import settings
 
 
 # Create your views here.
+from gogoedu.models import myUser
+from django.views import generic
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import permission_required
@@ -30,3 +32,6 @@ def change_language(request):
             response = HttpResponseRedirect(redirect_path)
             response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
     return response
+
+class Profile(generic.DetailView):
+	model = myUser
