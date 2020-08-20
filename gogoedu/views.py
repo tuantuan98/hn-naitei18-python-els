@@ -1,20 +1,16 @@
-from django.shortcuts import render
 from django.http import HttpResponseRedirect
-from django.conf import settings
-
-
-# Create your views here.
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from .forms import RegisterForm
 from gogoedu.models import myUser
 from django.views import generic
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
+from django.contrib.auth import login, authenticate
 
 
 def index(request):
-	 return render(request, 'index.html')
+    return render(request, 'index.html')
+
 
 def change_language(request):
     response = HttpResponseRedirect('/')
@@ -33,5 +29,22 @@ def change_language(request):
             response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
     return response
 
+
 class Profile(generic.DetailView):
-	model = myUser
+    model = myUser
+
+
+def register(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # username = form.cleaned_data.get('username')
+            # raw_password = form.cleaned_data.get('password1')
+            # user = authenticate(username=username, password=raw_password)
+            # login(request, user)
+            return HttpResponseRedirect(reverse('index'))
+    else:
+        form = RegisterForm()
+
+    return render(request, "registration/register.html", {"form": form})
