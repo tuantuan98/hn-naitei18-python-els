@@ -1,0 +1,26 @@
+{% extends "gogoedu/catagory_list.html" %}
+{% comment %} {%block searchform%}
+	<form action="{% url 'lesson' lesson.pk%}" method="get" id="courses_search_form" class="courses_search_form d-flex flex-row align-items-center justify-content-start">
+		<input type="search" class="courses_search_input" placeholder="Search Catagory"  name ='name' value="{{ request.GET.name }}">
+		<input type="submit" value="Search" class="courses_search_button ml-auto" />
+	</form> 
+{% endblock %} {% endcomment %}
+{% block content2 %}
+{% if object_list %}
+<div class="container">
+ 
+<h3>{{catagory.name}}</h3>
+ 
+<ul class="list-group">
+	{% for lesson in object_list %}
+		<li class="list-group-item"><a href="{{ lesson.get_absolute_url }}">{{lesson.name}}</a></li>
+	{% endfor %}
+  
+ 
+</ul>
+</div>
+{% else %}
+	<p>NO Lesson.</p>
+{% endif %}
+
+{% endblock %}
