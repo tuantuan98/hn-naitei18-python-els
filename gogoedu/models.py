@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
-
+from django.urls import reverse
 
 class Catagory(models.Model):
     name = models.CharField(max_length=255)
@@ -13,6 +13,9 @@ class Catagory(models.Model):
     def __str__(self):
         """String for representing the Model object."""
         return self.name
+    def get_absolute_url(self):
+        """Returns the url to access a detail record for this book."""
+        return reverse('lesson', args=[str(self.id)])
 
 
 class Lesson(models.Model):
@@ -23,7 +26,9 @@ class Lesson(models.Model):
     def __str__(self):
         """String for representing the Model object."""
         return self.name
-
+    def get_absolute_url(self):
+        """Returns the url to access a detail record for this book."""
+        return reverse('lesson-detail', args=[str(self.id)])
 
 class Word(models.Model):
     catagory = models.ForeignKey('Catagory',on_delete=models.SET_NULL, null=True)

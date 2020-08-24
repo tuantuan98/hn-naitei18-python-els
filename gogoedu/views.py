@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from .forms import RegisterForm
-from gogoedu.models import myUser, Lesson, Word 
+from gogoedu.models import myUser, Lesson, Word,Catagory
 from django.views import generic
 from django.conf import settings
 from django.contrib.auth import login, authenticate
@@ -31,7 +31,7 @@ def change_language(request):
             response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
     return response
 
-class Profile(generic.DetailView,MultipleObjectMixin):
+class Profile(generic.DetailView):
     model = myUser
 
 
@@ -52,8 +52,29 @@ def register(request):
 
 class Lesson_detail(generic.DetailView,MultipleObjectMixin):
     model = Lesson
-    paginate_by = 2
+    paginate_by = 20
     def get_context_data(self, **kwargs):
         object_list = Word.objects.filter(lesson=self.get_object())
         context = super(Lesson_detail, self).get_context_data(object_list=object_list, **kwargs)
+        return context
+class CatagoryListView(generic.ListView):
+    model = Catagory
+    paginate_by = 4
+    def get_queryset(self, **kwargs):
+        try:
+            name = self.request.GET.get('name',)
+        except:
+            name = ''
+        if name:
+            object_list = self.model.objects.filter(name__icontains = name)
+        else:
+            object_list = self.model.objects.filter()
+        return object_list
+    
+class CatagoryDetailView(generic.DetailView,MultipleObjectMixin):
+    model = Catagory
+    paginate_by = 10
+    def get_context_data(self, **kwargs):
+        object_list = self.object.lesson_set.all()
+        context = super(CatagoryDetailView, self).get_context_data(object_list=object_list, **kwargs)
         return context
