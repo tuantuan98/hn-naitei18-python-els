@@ -1,18 +1,26 @@
 {% extends "gogoedu/catagory_list.html" %}
-
+{%block searchform%}
+	{% comment %} <form action="{% url 'lesson' lesson.pk%}" method="get" id="courses_search_form" class="courses_search_form d-flex flex-row align-items-center justify-content-start">
+		<input type="search" class="courses_search_input" placeholder="Search Catagory"  name ='name' value="{{ request.GET.name }}">
+		<input type="submit" value="Search" class="courses_search_button ml-auto" />
+	</form> {% endcomment %}
+{% endblock %}
 {% block content2 %}
-
-{% if catagory.lesson_set.all %}
-<div class="sidebar_section">
-	<div class="sidebar_section_title">Lesson</div>
-	<div class="sidebar_categories">
-		<ul>
-		{% for lesson in catagory.lesson_set.all %}
-			<li><a href="#">{{lesson.name}}</a></li>
+{% if object_list %}
+<div class="container">
+ 
+<h3>{{catagory.name}}</h3>
+ 
+<ul class="list-group">
+	{% for lesson in object_list %}
+			<li class="list-group-item"><a href="#">{{lesson.name}}</a></li>
 		{% endfor %}
-		</ul>
-	</div>
+  
+ 
+</ul>
+ 
 </div>
+
 
 
 
@@ -21,31 +29,5 @@
 {% endif %}
 
 
-<div class="row pagination_row">
-	<div class="col">
-		<div class="pagination_container d-flex flex-row align-items-center justify-content-start">
-		{% if is_paginated %}
-			<ul class="pagination_list">
-			{% if page_obj.has_previous %}
-				<li><a href="?page={{ page_obj.previous_page_number }}"><i class="fa fa-angle-left" aria-hidden="true"></i></a></li>
-			{% else %}
-				<li class="disabled"><i class="fa fa-angle-left" aria-hidden="true"></i></li>
-			{% endif %}
-			{% for i in paginator.page_range %}
-				{% if page_obj.number == i %}
-					<li class="active"><a href="#">{{ i }}</a></li>
-				{% else %}
-					<li><a href="?page={{ i }}">{{ i }}</a></li>
-				{% endif %}
-			{% endfor %}
-			{% if page_obj.has_next %}
-				<li><a href="?page={{ page_obj.next_page_number }}"><i class="fa fa-angle-right" aria-hidden="true"></i></a></li>
-			{% else %}
-				<li class="disabled"><i class="fa fa-angle-right" aria-hidden="true"></i></li>
-			{% endif %}
-			</ul>
-		{% endif %}
-		</div>
-	</div>
-</div>
+
 {% endblock %}

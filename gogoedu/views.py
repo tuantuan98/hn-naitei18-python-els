@@ -34,6 +34,22 @@ def change_language(request):
 class CatagoryListView(generic.ListView):
     model = Catagory
     paginate_by = 2
-class CatagoryDetailView(generic.DetailView):
+    def get_queryset(self, **kwargs):
+        try:
+            name = self.request.GET.get('name',)
+        except:
+            name = ''
+        if name:
+            object_list = self.model.objects.filter(name__icontains = name)
+        else:
+            object_list = self.model.objects.filter()
+        return object_list
+    
+class CatagoryDetailView(generic.DetailView,MultipleObjectMixin):
     model = Catagory
-    paginate_by = 2
+    paginate_by = 1
+    def get_context_data(self, **kwargs):
+        object_list = self.object.lesson_set.all()
+        context = super(CatagoryDetailView, self).get_context_data(object_list=object_list, **kwargs)
+        return context
+    

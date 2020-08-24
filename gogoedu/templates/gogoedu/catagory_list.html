@@ -19,10 +19,12 @@
 				<!-- Courses Main Content -->
 				<div class="col-lg-8">
 					<div class="courses_search_container">
-						<form action="#" id="courses_search_form" class="courses_search_form d-flex flex-row align-items-center justify-content-start">
-							<input type="search" class="courses_search_input" placeholder="Search Catagory" required="required">
-							<button action="submit" class="courses_search_button ml-auto">search now</button>
+						{%block searchform%}
+						<form action="{% url 'catagory'%}" method="get" id="courses_search_form" class="courses_search_form d-flex flex-row align-items-center justify-content-start">
+							<input type="search" class="courses_search_input" placeholder="Search Catagory"  name ='name' value="{{ request.GET.name }}">
+							<input type="submit" value="Search" class="courses_search_button ml-auto" />
 						</form>
+						{% endblock %}
 					</div>
 					<div class="courses_container">
 						<div class="row courses_row">
@@ -62,13 +64,14 @@
 							
 
 						</div>
+						{% endblock %}
 						<div class="row pagination_row">
 							<div class="col">
 								<div class="pagination_container d-flex flex-row align-items-center justify-content-start">
 								{% if is_paginated %}
 									<ul class="pagination_list">
 									{% if page_obj.has_previous %}
-										<li><a href="?page={{ page_obj.previous_page_number }}"><i class="fa fa-angle-left" aria-hidden="true"></i></a></li>
+										<li><a href="{{ request.path }}?name={{ request.GET.name }}&page={{ page_obj.previous_page_number }}"><i class="fa fa-angle-left" aria-hidden="true"></i></a></li>
 									{% else %}
 										<li class="disabled"><i class="fa fa-angle-left" aria-hidden="true"></i></li>
 									{% endif %}
@@ -76,11 +79,11 @@
 										{% if page_obj.number == i %}
 											<li class="active"><a href="#">{{ i }}</a></li>
 										{% else %}
-											<li><a href="?page={{ i }}">{{ i }}</a></li>
+											<li><a href="{{ request.path }}?name={{ request.GET.name }}&page={{ i }}">{{ i }}</a></li>
 										{% endif %}
 									{% endfor %}
 									{% if page_obj.has_next %}
-										<li><a href="?page={{ page_obj.next_page_number }}"><i class="fa fa-angle-right" aria-hidden="true"></i></a></li>
+										<li><a href="{{ request.path }}?name={{ request.GET.name }}&page={{ page_obj.next_page_number }}"><i class="fa fa-angle-right" aria-hidden="true"></i></a></li>
 									{% else %}
 										<li class="disabled"><i class="fa fa-angle-right" aria-hidden="true"></i></li>
 									{% endif %}
@@ -89,7 +92,7 @@
 								</div>
 							</div>
 						</div>
-						{% endblock %}
+						
 					</div>
 				</div>
 
