@@ -42,11 +42,11 @@
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab"
-                                       aria-controls="home" aria-selected="true">About</a>
+                                       aria-controls="home" aria-selected="true">{% trans 'About' %}</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
-                                       aria-controls="profile" aria-selected="false">Timeline</a>
+                                       aria-controls="profile" aria-selected="false">{% trans 'Learned word' %}</a>
                                 </li>
                             </ul>
                         </div>
@@ -58,15 +58,15 @@
                                      aria-labelledby="home-tab">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <label>Name</label>
+                                            <label>{% trans 'Name' %}</label>
                                         </div>
                                         <div class="col-md-6">
-                                            <p>{{user.get_username}}</p>
+                                            <p>{{user.username}}</p>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <label>Email</label>
+                                            <label>{% trans 'Email' %}</label>
                                         </div>
                                         <div class="col-md-6">
                                             <p>{{user.email}}</p>
@@ -75,45 +75,34 @@
                                 </div>
                                 <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                                     <div class="row">
-                                        <div class="col-md-6">
-                                            <label>Experience</label>
+                                        <div class="col-md-3">
+                                            <label>{% trans 'Word' %}</label>
                                         </div>
                                         <div class="col-md-6">
-                                            <p>Expert</p>
+                                            <label>{% trans 'Lesson' %}</label>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label>Hourly Rate</label>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p>10$/hr</p>
+                                        <div class="col-md-3">
+                                            <label>{% trans 'Catagory' %}</label>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label>Total Projects</label>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p>230</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label>English Level</label>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p>Expert</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label>Availability</label>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <p>6 months</p>
-                                        </div>
-                                    </div>
+                                    {% for userword in myuser.userword_set.all %}
+                                        {% if userword.memoried is True %}
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <a>{{userword.word}}</a>
+                                                </div>
+                                                {% for lesson in userword.word.lesson.all %}
+                                                    <div class="col-md-6">
+                                                        <a href="{% url 'lesson-detail' lesson.id %}">{{lesson}}</a>
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="col-md-3">
+                                                    <a href="{% url 'lesson' userword.word.catagory.id %}">{{userword.word.catagory}}</a>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+
                                 </div>
                             </div>
                         </div>
@@ -122,7 +111,7 @@
                 {% if user.id == request.user.id %}
                 <div class="col-md-2">
                     <a role="button" href="{% url 'profile-update' user.id %}" class="profile-edit-btn btn active" aria-pressed="true">
-                        Edit Profile
+                        {% trans 'Edit profile' %}
                     </a>
                 </div>
                 {% endif %}
