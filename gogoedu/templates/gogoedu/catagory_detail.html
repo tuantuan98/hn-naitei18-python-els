@@ -7,17 +7,15 @@
 {% endblock %} {% endcomment %}
 {% block content2 %}
 {% if object_list %}
-<div class="container">
+<div class="container mt-5">
  
 <h3>{{catagory.name}}</h3>
- 
-<ul class="list-group">
-	{% for lesson in object_list %}
-		<li class="list-group-item"><a href="{{ lesson.get_absolute_url }}">{{lesson.name}}</a></li>
-	{% endfor %}
-  
- 
-</ul>
+ <div class="list-group">
+  {% for lesson in object_list %}
+  <a class="list-group-item" href="{{ lesson.get_absolute_url }}"><i class="fa fa-book fa-fw" aria-hidden="true"></i>&nbsp; {{lesson.name}}</a>
+  {% endfor %}
+</div>
+
 </div>
 {% else %}
 	<p>NO Lesson.</p>

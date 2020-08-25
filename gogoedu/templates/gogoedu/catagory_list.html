@@ -9,12 +9,12 @@
 {% block content %}
 	<!-- Courses -->
 
-	<div class="courses">
+	<div class="courses mt-5">
 		<div class="container">
 			<div class="row">
 
 				<!-- Courses Main Content -->
-				<div class="col-lg-8">
+				<div class="col-lg-12">
 					<div class="courses_search_container">
 						{%block searchform%}
 						<form action="{% url 'catagory'%}" method="get" id="courses_search_form" class="courses_search_form d-flex flex-row align-items-center justify-content-start">
@@ -29,9 +29,9 @@
 							{% if catagory_list %}
 							<!-- Course -->
 							{% for catagory in catagory_list %}
-							<div class="col-lg-6 course_col">
+							<div class="col-lg-4 course_col">
 								<div class="course">
-									<div class="course_image"><img src="{{ catagory.image.url }}" alt=""></div>
+									<div class="course_image"><img src="" alt=""></div>
 									<div class="course_body">
 										<h3 class="course_title"><a href="{{ catagory.get_absolute_url }}">{{catagory.name}}</a></h3>
 										<div class="course_teacher">Mr. John Taylor</div>
