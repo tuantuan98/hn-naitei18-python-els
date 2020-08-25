@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from gogoedu.models import myUser
 from django.utils.translation import gettext as _
 
@@ -24,3 +24,10 @@ class RegisterForm(UserCreationForm):
         if myUser.objects.filter(email=email):
             raise forms.ValidationError(_("Email existed. Please try again"))
         return self.cleaned_data
+
+
+class UserUpdateForm(UserChangeForm):
+    class Meta:
+        model = myUser
+        fields = ["username", "first_name", "last_name", "email", "avatar"]
+        exclude = ['user']

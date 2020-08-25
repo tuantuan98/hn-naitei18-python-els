@@ -2,10 +2,7 @@
 {% load static %}
 {% block title %}<title>Categories</title>{% endblock %}
 {% block css %}
-	<link href="{% static 'plugins/colorbox/colorbox.css' %}" rel="stylesheet" type="text/css">
-	<link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/owl.carousel.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/owl.theme.default.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/animate.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'plugins/colorbox/colorbox.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'styles/courses.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'styles/courses_responsive.css' %}">
 {% endblock %}
@@ -34,7 +31,7 @@
 							{% for catagory in catagory_list %}
 							<div class="col-lg-6 course_col">
 								<div class="course">
-									<div class="course_image"><img src="images/course_4.jpg" alt=""></div>
+									<div class="course_image"><img src="{{ catagory.image.url }}" alt=""></div>
 									<div class="course_body">
 										<h3 class="course_title"><a href="{{ catagory.get_absolute_url }}">{{catagory.name}}</a></h3>
 										<div class="course_teacher">Mr. John Taylor</div>

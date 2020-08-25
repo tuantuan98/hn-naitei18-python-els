@@ -6,13 +6,17 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from PIL import Image
+
 
 class Catagory(models.Model):
     name = models.CharField(max_length=255)
+    image = models.ImageField(upload_to='images/lesson_pics', blank=True)
 
     def __str__(self):
         """String for representing the Model object."""
         return self.name
+
     def get_absolute_url(self):
         """Returns the url to access a detail record for this book."""
         return reverse('lesson', args=[str(self.id)])
@@ -26,9 +30,11 @@ class Lesson(models.Model):
     def __str__(self):
         """String for representing the Model object."""
         return self.name
+
     def get_absolute_url(self):
         """Returns the url to access a detail record for this book."""
         return reverse('lesson-detail', args=[str(self.id)])
+
 
 class Word(models.Model):
     catagory = models.ForeignKey('Catagory',on_delete=models.SET_NULL, null=True)
@@ -74,14 +80,25 @@ class Choice(models.Model):
 
 
 class myUser(AbstractUser):
-    avatar = models.CharField(max_length=255)
+    avatar = models.ImageField(upload_to='images/profile_pics', blank=True)
     email = models.EmailField(_('email address'))
+
+    # Resize the image
+    # def save(self):
+    #     super().save()
+    #
+    #     image = Image.open(self.avatar.path)
+    #     # To resize the profile image
+    #     if image.height > 400 or image.width > 400:
+    #         output_size = (400, 400)
+    #         image.thumbnail(output_size)
+    #         image.save(self.avatar.path)
 
 
 class UserTest(models.Model):
     user = models.ForeignKey('myUser', on_delete=models.CASCADE)
     test = models.ForeignKey('Test', on_delete=models.CASCADE)
-    correct_answer_num=models.IntegerField(default=0)
+    correct_answer_num = models.IntegerField(default=0)
 
 
 class UserWord(models.Model):
