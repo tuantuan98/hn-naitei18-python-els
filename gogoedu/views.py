@@ -9,7 +9,7 @@ from django.template import loader
 from django.contrib.auth import login, authenticate
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.list import MultipleObjectMixin
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import RegisterForm, UserUpdateForm
 from gogoedu.models import myUser, Lesson, Word, Catagory
 
@@ -37,19 +37,18 @@ def change_language(request):
             response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
     return response
 
-
-@login_required
-def profile(request, pk):
-    user = get_object_or_404(myUser, pk=pk)
-    if not user.avatar:
-        avatar = '/media/images/profile_pics/default.jpg'
-    else:
-        avatar = user.avatar.url
-    context = {
-        'user': user,
-        'avatar': avatar
-    }
-    return render(request, 'gogoedu/myuser_detail.html', context)
+class Profile(LoginRequiredMixin,generic.DetailView):
+    model = myUser  
+    def get_context_data(self, **kwargs):
+        object_list = myUser.objects.filter()
+        context = super(Profile, self).get_context_data(object_list=object_list, **kwargs)
+        user = self.request.user
+        if not user.avatar:
+            avatar = '/media/images/profile_pics/default.jpg'
+        else:
+            avatar = user.avatar.url
+        context['avatar'] = avatar
+        return context
 
 
 def register(request):
@@ -76,7 +75,6 @@ class Lesson_detail(generic.DetailView, MultipleObjectMixin):
         object_list = Word.objects.filter(lesson=self.get_object())
         context = super(Lesson_detail, self).get_context_data(object_list=object_list, **kwargs)
         return context
-
 
 class CatagoryListView(generic.ListView):
     model = Catagory

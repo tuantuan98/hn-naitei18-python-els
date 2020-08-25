@@ -11,7 +11,7 @@ from PIL import Image
 
 class Catagory(models.Model):
     name = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='images/lesson_pics', blank=True)
+    # image = models.ImageField(upload_to='images/lesson_pics', blank=True)
 
     def __str__(self):
         """String for representing the Model object."""
@@ -104,4 +104,4 @@ class UserTest(models.Model):
 class UserWord(models.Model):
     user = models.ForeignKey('myUser', on_delete=models.CASCADE)
     word = models.ForeignKey('Word', on_delete=models.CASCADE)
-    memoried = models.BooleanField(default=True)
+    memoried = models.BooleanField(null=False,default=False)
