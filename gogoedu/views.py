@@ -85,6 +85,17 @@ class Lesson_detail(generic.DetailView, MultipleObjectMixin):
     def get_context_data(self, **kwargs):
         object_list = Word.objects.filter(lesson=self.get_object())
         context = super(Lesson_detail, self).get_context_data(object_list=object_list, **kwargs)
+        marked_word_list = []
+        new_list= []
+        for word in object_list:
+            if not UserWord.objects.filter(user=self.request.user.id, word=word.id).first():
+                new_list.append(word)
+                context['marked_word_list'] = marked_word_list
+                context['new_list'] = new_list
+            else:
+                marked_word_list.append(word)
+                context['marked_word_list'] = marked_word_list
+                context['new_list'] = new_list
         return context
 
 class CatagoryListView(generic.ListView):
@@ -213,4 +224,4 @@ class MarkLearned(generic.View):
         else:
             UserWord.objects.filter(user=request.user.id, word=wordid).delete()
             learned = False
-        return JsonResponse({'word': model_to_dict(user_word), 'learned': learned}, status=200)
+        return JsonResponse({'word': model_to_dict(user_word), 'learned': learned}, status=200)    
