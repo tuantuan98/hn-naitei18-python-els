@@ -3,6 +3,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
+from .forms import RegisterForm
+from gogoedu.models import myUser, Lesson, Word,Catagory,Test,UserTest,Question,Choice,UserAnswer
 from django.views import generic
 from django.conf import settings
 from django.template import loader
@@ -16,6 +18,10 @@ from gogoedu.models import myUser, Lesson, Word, Catagory
 from PIL import Image
 
 
+from django.shortcuts import get_object_or_404
+from django.db import transaction
+
+from django.core.exceptions import PermissionDenied
 def index(request):
     return render(request, 'index.html')
 
@@ -78,8 +84,7 @@ class Lesson_detail(generic.DetailView, MultipleObjectMixin):
 
 class CatagoryListView(generic.ListView):
     model = Catagory
-    paginate_by = 4
-
+    paginate_by = 6
     def get_queryset(self, **kwargs):
         try:
             name = self.request.GET.get('name',)
@@ -105,6 +110,10 @@ class CatagoryDetailView(generic.DetailView,MultipleObjectMixin):
 @login_required
 def profile_update(request, pk):
     user = get_object_or_404(myUser, pk=pk)
+    if not user.avatar:
+        avatar = '/media/images/profile_pics/default.jpg'
+    else:
+        avatar = user.avatar.url
     if request.user == user:
         if request.method == "POST":
             form = UserUpdateForm(request.POST, request.FILES, instance=user)
@@ -115,8 +124,72 @@ def profile_update(request, pk):
         else:
             form = UserUpdateForm(instance=user)
 
-        return render(request, 'gogoedu/myuser_update.html', {'form': form})
+        return render(request, 'gogoedu/myuser_update.html', {'form': form, 'avatar': avatar})
     else:
         return redirect('index')
 
+def is_authenticated(request):
+    if not request.user.is_authenticated:
+        raise PermissionDenied
+def test_detail_view(request, pk):
+    is_authenticated(request)
+    test = get_object_or_404(Test, pk=pk)
+    if request.method == 'POST':
+        data = {}
+        for key, value in request.POST.items():
+            if key == 'csrfmiddlewaretoken':
+                continue
+            question_id = key.split('-')[1]
+            choice_id = request.POST.get(key)
+            data[question_id] = choice_id
+        perform_test(request.user, data, test)
+        return redirect(reverse('show_results', args=(test.id,)))
+    return render(request, 'gogoedu/test_detail.html', context={'test': test})
 
+
+class SuspiciousOperation(Exception):
+    def __init__(self,value):
+        print(value)
+
+
+def perform_test(user, data, test):
+    with transaction.atomic():
+        UserAnswer.objects.filter(user=user,
+                                  question__test=test).delete()
+        for question_id, choice_id in data.items():
+            question = Question.objects.get(id=question_id)
+            choice_id = int(choice_id)
+            if choice_id not in question.choice_set.values_list('id', flat=True):
+                raise SuspiciousOperation('Choice is not valid for this question')
+            UserAnswer.objects.create(user=user,
+                                      question=question,
+                                      choice_id=choice_id,
+            )
+
+
+def calculate_score(user, test):
+    questions = Question.objects.filter(test=test)
+    correct_choices = UserAnswer.objects.filter(
+        user=user,
+        question__test=test,
+        choice__correct=True
+    )
+    score=UserTest(user=user,test=test,correct_answer_num=correct_choices.count())
+    score.save()
+    return correct_choices.count()
+
+
+def show_results(request, pk):
+    is_authenticated(request)
+    test = Test.objects.get(id=pk)
+    return render(request, 'gogoedu/show_results.html', {
+        'test': test,
+        'score': calculate_score(request.user, test)
+    })
+def show_form_correct(request,pk):
+    questions = Question.objects.filter(test=test)
+    choices = UserAnswer.objects.filter(
+        user=request.user,
+        question__test=test,
+    )
+    return render(request, 'gogoedu/show_results.html', context={'choices': choices})

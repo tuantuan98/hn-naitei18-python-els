@@ -123,6 +123,22 @@
 								<!-- Reviews -->
 								<div class="tab_panel tab_panel_3">
 									<div class="tab_panel_title">Test</div>
+									
+									<div class="tab_panel_content">
+										<div class="accordions">
+												
+											<div class="elements_accordions">
+											{% for test in lesson.test_set.all %}
+												<div class="accordion_container">
+													<div class="accordion d-flex flex-row align-items-center"><div><a href="{{test.get_absolute_url}}" target="_blank">{{test}}</a></div></div>
+													<div class="accordion_panel">
+														<p>Questions Number : {{test.question_num}}</p>
+														<p>Time : {{test.time}}</p>
+													</div>
+												</div>
+											{% endfor %}
+											</div>
+									</div>
 								</div>
 							</div>
 						</div>

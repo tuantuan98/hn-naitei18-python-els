@@ -1,6 +1,4 @@
 from django.db import models
-from django.utils import timezone
-import datetime
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
@@ -57,13 +55,22 @@ class Word(models.Model):
 class Test(models.Model):
     lesson = models.ForeignKey('Lesson', on_delete=models.SET_NULL, null=True)
     question_num = models.IntegerField()
-    time = models.TimeField()
-
+    name = models.CharField(max_length=50)
+    time = models.IntegerField(default=600)
+    def __str__(self):
+        """String for representing the Model object."""
+        return self.name
+    def get_absolute_url(self):
+        """Returns the url to access a detail record for this book."""
+        return reverse('test-detail', args=[str(self.id)])
+    def get_test_url(self):
+        """Returns the url to access a detail record for this book."""
+        return reverse('test-detail', args=[str(self.id)])
 
 class Question(models.Model):
     test = models.ForeignKey('Test', on_delete=models.SET_NULL, null=True)
     question_text = models.CharField(max_length=255)
-
+    
     def __str__(self):
         """String for representing the Model object."""
         return self.question_text
@@ -72,7 +79,7 @@ class Question(models.Model):
 class Choice(models.Model):
     choice_text = models.CharField(max_length=255)
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
-    is_true = models.BooleanField(default=False)
+    correct = models.BooleanField(default=False)
 
     def __str__(self):
         """String for representing the Model object."""
@@ -99,6 +106,15 @@ class UserTest(models.Model):
     user = models.ForeignKey('myUser', on_delete=models.CASCADE)
     test = models.ForeignKey('Test', on_delete=models.CASCADE)
     correct_answer_num = models.IntegerField(default=0)
+    def __str__(self):
+        """String for representing the Model object."""
+        return self.test.name
+
+class UserAnswer(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    user = models.ForeignKey('myUser', on_delete=models.CASCADE)
+
 
 
 class UserWord(models.Model):
