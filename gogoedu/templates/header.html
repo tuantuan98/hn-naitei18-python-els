@@ -33,7 +33,7 @@
 								{% else %}
 								<div class="d-flex flex-row align-items-center justify-content-end">
 									<div class="top_bar_login">
-										<div class="login_button"><a href="{% url 'login' %}?next={{request.path}}">{% trans 'Sign in' %}</a></div>
+										<div class="login_button"><a href="{% url 'login' %}?next={% url 'index' %}">{% trans 'Sign in' %}</a></div>
 									</div>
 									<div class="top_bar_login ml-auto">
 										<div class="register_button"><a href="{% url 'register' %}">{% trans 'Register' %}</a></div>

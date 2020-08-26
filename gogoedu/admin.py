@@ -3,8 +3,8 @@ from django.contrib.auth.admin import UserAdmin
 from .models import myUser
 from .models import Catagory,Lesson,Word,Test,Question,Choice,UserTest,UserWord
 # Register your models here.
-admin.site.register(myUser)
 
+admin.site.register(myUser)
 admin.site.register(Catagory)
 admin.site.register(Lesson)
 admin.site.register(Word)

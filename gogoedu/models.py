@@ -121,3 +121,10 @@ class UserWord(models.Model):
     user = models.ForeignKey('myUser', on_delete=models.CASCADE)
     word = models.ForeignKey('Word', on_delete=models.CASCADE)
     memoried = models.BooleanField(null=False,default=False)
+
+    def __str__(self):
+        """String for representing the Model object."""
+        return f'{self.user} - {self.word}'
+
+    class Meta:
+        unique_together = (("user", "word"),)
