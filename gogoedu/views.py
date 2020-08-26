@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.core.mail.backends import console
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
@@ -10,10 +11,15 @@ from django.conf import settings
 from django.template import loader
 from django.contrib.auth import login, authenticate
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic.edit import FormMixin
 from django.views.generic.list import MultipleObjectMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.http import JsonResponse
+from django.forms.models import model_to_dict
+
 from .forms import RegisterForm, UserUpdateForm
-from gogoedu.models import myUser, Lesson, Word, Catagory
+from gogoedu.models import myUser, Lesson, Word, Catagory, UserWord
 
 from PIL import Image
 
@@ -62,10 +68,6 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            # username = form.cleaned_data.get('username')
-            # raw_password = form.cleaned_data.get('password1')
-            # user = authenticate(username=username, password=raw_password)
-            # login(request, user)
             return HttpResponseRedirect(reverse('index'))
     else:
         form = RegisterForm()
@@ -76,6 +78,9 @@ def register(request):
 class Lesson_detail(generic.DetailView, MultipleObjectMixin):
     model = Lesson
     paginate_by = 20
+
+    def get_success_url(self):
+        return reverse('lesson-detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         object_list = Word.objects.filter(lesson=self.get_object())
@@ -97,7 +102,7 @@ class CatagoryListView(generic.ListView):
         return object_list
 
 
-class CatagoryDetailView(generic.DetailView,MultipleObjectMixin):
+class CatagoryDetailView(generic.DetailView, MultipleObjectMixin):
     model = Catagory
     paginate_by = 10
 
@@ -193,3 +198,18 @@ def show_form_correct(request,pk):
         question__test=test,
     )
     return render(request, 'gogoedu/show_results.html', context={'choices': choices})
+
+class MarkLearned(generic.View):
+    def post(self, request, pk, wordid):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        user_word = UserWord()
+        user_word.user = myUser.objects.get(id=request.user.id)
+        user_word.word = Word.objects.get(id=wordid)
+        if not UserWord.objects.filter(user=request.user.id, word=wordid).first():
+            user_word.save()
+            learned = True
+        else:
+            UserWord.objects.filter(user=request.user.id, word=wordid).delete()
+            learned = False
+        return JsonResponse({'word': model_to_dict(user_word), 'learned': learned}, status=200)

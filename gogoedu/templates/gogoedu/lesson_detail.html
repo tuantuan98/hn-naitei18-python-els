@@ -2,13 +2,8 @@
 {% load static %}
 {% load i18n %}
 {% block css %}
-	<link rel="stylesheet" type="text/css" href="{% static 'styles/bootstrap4/bootstrap.min.css' %}">
-	<link href="{% static 'plugins/font-awesome-4.7.0/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
-	<link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/owl.carousel.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/owl.theme.default.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/animate.css' %}">
-	<link href="{% static 'plugins/colorbox/colorbox.css' %}" rel="stylesheet" type="text/css">
-	<link rel="stylesheet" type="text/css" href="{% static 'styles/course.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'plugins/colorbox/colorbox.css' %}" >
+	<link rel="stylesheet" type="text/css" href="{% static 'styles/lesson.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'styles/course_responsive.css' %}">
 {% endblock %}
 
@@ -42,9 +37,8 @@
 
 				<!-- Course -->
 				<div class="col-lg-8">
-					
 					<div class="course_container">
-						<div class="course_title">{{lesson.name}}</div>
+						<div id="lessonName" data-id="{{lesson.id}}" class="course_title">{% trans 'Lesson ' %}{{lesson.name}}</div>
 						
 						<div class="course_info d-flex flex-lg-row flex-column align-items-lg-center align-items-start justify-content-start">
 
@@ -62,36 +56,49 @@
 						<!-- Course Tabs -->
 						<div class="course_tabs_container">
 							<div class="tabs d-flex flex-row align-items-center justify-content-start">
-								<div class="tab active">{% trans 'Lesson' %}</div>
-								<div class="tab">{% trans 'Word' %}</div>
-								<div class="tab">{% trans 'Test' %}</div>
+								<div class="tab">
+									{% trans 'Lesson' %}
+								</div>
+								<div class="tab active">
+									{% trans 'Words' %}
+								</div>
+								<div class="tab">
+									{% trans 'Test' %}
+								</div>
 							</div>
 							<div class="tab_panels">
 
 								<!-- Description -->
-								<div class="tab_panel active">
+								<div class="tab_panel">
 									<div class="tab_panel_title">{{lesson.name}}</div>
 									<div><a>{{lesson.description}}</a></div>
-
 								</div>
 
 								<!-- Curriculum -->
-								<div class="tab_panel tab_panel_2">
+								<div class="tab_panel tab_panel_2 active">
 									<div class="tab_panel_content">
 										<div class="tab_panel_title">{{lesson.catagory}}</div>
-										<div class="tab_panel_content">
+										<div id="wordListTab" class="tab_panel_content">
+
 											<!-- Dropdowns -->
 											{% for word in object_list %}
 												<ul class="dropdowns">
 													<li class="has_children">
 														<div class="dropdown_item">
-															<div class="accordion d-flex flex-row align-items-center"><span>{{word}} ({{word.type}})</span></div>
+															<div class="accordion d-flex flex-row justify-content-between">
+																<span class="d-flex flex-column justify-content-center">{{word}} ({{word.type}})</span>
+																<form id="markLearnedForm{{word.id}}" data-id="{{word.id}}" data-url="{% url 'lesson-detail' lesson.id %}">
+																	{% csrf_token %}
+																	<input type="hidden" name="user" value="{{request.user.id}}" id="id_user" data-id="{{word.id}}">
+																	<input type="hidden" name="word" value="{{word.id}}" id="id_word" data-id="{{word.id}}">
+																	<input type="button" id="markButton" data-id="{{word.id}}" class="btn mark-button" value="{% trans 'Mark as learned' %}">
+																</form>
+															</div>
 														</div>
 														<ul>
 															<li>
 																<div class="dropdown_item">
-																	<div class="tab_panel_title"
-																	style="font-size: 15px !important ;"><span>{{word.mean}}</span></div>
+																	<div class="tab_panel_title" style="font-size: 15px !important ;"><span>{{word.mean}}</span></div>
 																</div>
 															</li>
 														</ul>
@@ -181,12 +188,41 @@
 {% endblock %}
 
 {% block plugin %}
-<script src="{% static 'js/jquery-3.2.1.min.js'%}"></script>
-<script src="{% static 'styles/bootstrap4/popper.js'%}"></script>
-<script src="{% static 'styles/bootstrap4/bootstrap.min.js'%}"></script>
-<script src="{% static 'plugins/OwlCarousel2-2.2.1/owl.carousel.js'%}"></script>
-<script src="{% static 'plugins/easing/easing.js'%}"></script>
-<script src="{% static 'plugins/parallax-js-master/parallax.min.js'%}"></script>
-<script src="{% static 'plugins/colorbox/jquery.colorbox-min.js'%}"></script>
-<script src="{% static 'js/course.js'%}"></script>
+	<script src="{% static 'js/jquery-3.2.1.min.js'%}"></script>
+	<script src="{% static 'styles/bootstrap4/popper.js'%}"></script>
+	<script src="{% static 'styles/bootstrap4/bootstrap.min.js'%}"></script>
+	<script src="{% static 'plugins/OwlCarousel2-2.2.1/owl.carousel.js'%}"></script>
+	<script src="{% static 'plugins/easing/easing.js'%}"></script>
+	<script src="{% static 'plugins/parallax-js-master/parallax.min.js'%}"></script>
+	<script src="{% static 'plugins/colorbox/jquery.colorbox-min.js'%}"></script>
+	<script src="{% static 'js/course.js'%}"></script>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		$(document).ready(function(){
+			var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+			var lessonId = $("#lessonName").data('id')
+			$('#wordListTab').on('click', '.mark-button', function(){
+				var wordId = $(this).data('id')
+				var this_ = $(this)
+
+				$.ajax({
+					url: '/gogoedu/lesson/' + lessonId + '/words/' + wordId + '/learned/',
+					data: {
+						csrfmiddlewaretoken: csrfToken,
+						id: wordId,
+					},
+					type: 'post',
+					success: function(response) {
+						if (response.learned) {
+							this_.val("{% trans 'Unmark' %}")
+						} else {
+							this_.val("{% trans 'Mark as learned' %}")
+						}
+					}
+				})
+			});
+		});
+	</script>
 {% endblock %}

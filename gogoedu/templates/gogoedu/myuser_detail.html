@@ -86,7 +86,6 @@
                                         </div>
                                     </div>
                                     {% for userword in myuser.userword_set.all %}
-                                        {% if userword.memoried is True %}
                                             <div class="row">
                                                 <div class="col-md-3">
                                                     <a>{{userword.word}}</a>
@@ -100,7 +99,6 @@
                                                     <a href="{% url 'lesson' userword.word.catagory.id %}">{{userword.word.catagory}}</a>
                                                 </div>
                                             </div>
-                                        {% endif %}
                                     {% endfor %}
 
                                 </div>
