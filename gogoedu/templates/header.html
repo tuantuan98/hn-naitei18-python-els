@@ -20,6 +20,13 @@
 										<i class="fa fa-envelope-o" aria-hidden="true"></i>
 										<div>gogoedu@gmail.com</div>
 									</li>
+									<li>
+										{% if user.is_superuser %}
+											<div class="top_bar_login ml-auto">
+												<div class="register_button"><a href="/admin">{% trans 'Manage all' %}</a></div>
+											</div>
+										{% endif %} 
+									</li>
 								</ul>
 								{% if user.is_authenticated %}
 								<div class="d-flex flex-row align-items-center justify-content-end">

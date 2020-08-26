@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'dajaxice',
     'dajax',
+    'nested_inline'
 ]
 
 MIDDLEWARE = [
