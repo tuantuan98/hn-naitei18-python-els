@@ -10,6 +10,7 @@
   <link rel="stylesheet" type="text/css" href="{% static 'styles/test.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'styles/bootstrap4/bootstrap.min.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'plugins/font-awesome-4.7.0/css/font-awesome.min.css' %}" >
+  <link rel="stylesheet" href="{% static 'styles/test.css' %}">
 </head>
 <body>
 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -19,10 +20,25 @@
     <div class="title">
       <h4>{{ score }} {% trans 'true answers' %}</h4>
     </div>
-    <a href="{{ test.get_test_url }}">{% trans 'Try again'%}</a>  
+    <a href="{{ test.get_test_url }}">{% trans 'Try again'%}</a> 
   </div>
-
-</div>
-
+  <div id="page-wrap">
+  <ol>
+  <h1>{{test}}</h1>
+  <form action="" method="POST" id="quiz">
+  {% csrf_token %}
+  {% for question in test.question_set.all %}
+      <li>
+      <h3><strong>{{question}}</strong></h3>
+      {% for choice in question.choice_set.all %}
+          <label class="radio" for="" {% if choice.correct%} style="color:green;text-decoration: underline;" {%endif%}><input type="radio" disabled="disabled" {% if choice in choices%} checked="checked"{%endif%}>{{choice}}</label>
+          <br>
+      {% endfor %}
+      </li>
+  {% endfor %}
+  </form>
+  </ol>
+  </div>
+  </div>	 
 </body>
 </html>
