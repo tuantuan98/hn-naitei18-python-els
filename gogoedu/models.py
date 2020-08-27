@@ -55,7 +55,7 @@ class Word(models.Model):
 class Test(models.Model):
     lesson = models.ForeignKey('Lesson', on_delete=models.SET_NULL, null=True)
     question_num = models.IntegerField()
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, null= True)
     time = models.IntegerField(default=600)
     def __str__(self):
         """String for representing the Model object."""
@@ -78,7 +78,7 @@ class Question(models.Model):
 
 class Choice(models.Model):
     choice_text = models.CharField(max_length=255)
-    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', on_delete=models.CASCADE, null=True)
     correct = models.BooleanField(default=False)
 
     def __str__(self):
