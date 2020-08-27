@@ -187,17 +187,18 @@ def calculate_score(user, test):
 def show_results(request, pk):
     is_authenticated(request)
     test = Test.objects.get(id=pk)
-    return render(request, 'gogoedu/show_results.html', {
-        'test': test,
-        'score': calculate_score(request.user, test)
-    })
-def show_form_correct(request,pk):
-    questions = Question.objects.filter(test=test)
     choices = UserAnswer.objects.filter(
         user=request.user,
         question__test=test,
     )
-    return render(request, 'gogoedu/show_results.html', context={'choices': choices})
+    listchoices=[]
+    for choices1 in choices:
+        listchoices.append(choices1.choice) 
+    return render(request, 'gogoedu/show_results.html', {
+        'test': test,
+        'score': calculate_score(request.user, test),
+        'choices':listchoices,
+    })
 
 class MarkLearned(generic.View):
     def post(self, request, pk, wordid):
