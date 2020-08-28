@@ -1,6 +1,4 @@
-import dajax
 from django.urls import path
-from django.views.decorators.http import require_POST
 
 from . import views
 
@@ -15,4 +13,8 @@ urlpatterns = [
 	path('profile/<int:pk>/edit', views.profile_update, name='profile-update'),
 	path('test/<int:pk>', views.test_detail_view, name='test-detail'),
 	path('results/<int:pk>', views.show_results, name='show_results'),
+	path('activate/<uidb64>/<token>', views.activate, name='activate'),
+	path('register/<int:pk>/activation', views.activation_request, name='account-activation'),
+	path('summary/', views.SummaryDetailView, name='show_summary'),
+
 ]

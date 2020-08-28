@@ -150,12 +150,12 @@
 																<div class="accordion d-flex flex-row justify-content-between">
 																	<span class="d-flex flex-column justify-content-center">{{word}} ({{word.type}})</span>
 																	<form id="markLearnedForm{{word.id}}" data-id="{{word.id}}" data-url="{% url 'lesson-detail' lesson.id %}">
-																	{% csrf_token %}
-																	<input type="hidden" name="user" value="{{request.user.id}}" id="id_user" data-id="{{word.id}}">
-																	<input type="hidden" name="word" value="{{word.id}}" id="id_word" data-id="{{word.id}}">
-																	<input type="button" id="markButton" data-id="{{word.id}}" class="btn mark-button" value="{% trans 'Mark as learned' %}">
+																		{% csrf_token %}
+																		<input type="hidden" name="user" value="{{request.user.id}}" id="id_user" data-id="{{word.id}}">
+																		<input type="hidden" name="word" value="{{word.id}}" id="id_word" data-id="{{word.id}}">
+																		<input type="button" id="markButton" data-id="{{word.id}}" class="btn mark-button"
+																			   value="{% if word in marked_word_list %}{% trans 'Unmark' %}{% else %}{% trans 'Mark as learned' %}{% endif %}">
 																	</form>
-
 																</div>
 															</div>
 															<ul>
@@ -338,8 +338,8 @@
 
 						<!-- Newsletter Content -->
 						<div class="newsletter_content text-lg-left text-center">
-							<div class="newsletter_title">sign up for news and offers</div>
-							<div class="newsletter_subtitle">Subcribe to lastest smartphones news & great deals we offer</div>
+							<div class="newsletter_title">{% trans 'sign up for news and offers' %}</div>
+							<div class="newsletter_subtitle">{% trans 'Subcribe to lastest smartphones news & great deals we offer' %}</div>
 						</div>
 					</div>
 				</div>
@@ -383,7 +383,7 @@
 						}
 					}
 				})
-			});
+			})
 		});
 		function openCity(cityName) {
 		  var i;
