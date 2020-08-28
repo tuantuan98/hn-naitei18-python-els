@@ -1,4 +1,5 @@
 {% load static %}	
+{% load i18n %}
 <footer class="footer">
 	<div class="footer_background" style="background-image:url({% static 'images/footer_background.png' %})"></div>
 	<div class="container">
@@ -35,12 +36,12 @@
 				
 							<!-- Footer Contact -->
 							<div class="footer_section footer_contact">
-								<div class="footer_title">Contact Us</div>
+								<div class="footer_title">{% trans 'Contact Us' %}</div>
 								<div class="footer_contact_info">
 									<ul>
-										<li>Email: gogoedu@gmail.com</li>
-										<li>Phone:  +(84) 914674590</li>
-										<li>stage 11, Handico tower, Pham Hung street, Nam Tu Liem distric, Hanoi, Vietnam </li>
+										<li>{% trans 'Email: gogoedu@gmail.com' %}</li>
+										<li>{% trans 'Phone:  +(84) 914674590' %}</li>
+										<li>{% trans 'stage 11, Handico tower, Pham Hung street, Nam Tu Liem distric, Hanoi, Vietnam' %} </li>
 									</ul>
 								</div>
 							</div>
@@ -51,14 +52,13 @@
 				
 							<!-- Footer links -->
 							<div class="footer_section footer_links">
-								<div class="footer_title">Contact Us</div>
+								<div class="footer_title">{% trans 'Menu' %}</div>
 								<div class="footer_links_container">
 									<ul>
-										<li><a href="index.html">Home</a></li>
-										<li><a href="contact.html">Catagory</a></li>
-										<li><a href="contact.html">Contact</a></li>
-										<li><a href="#">Events</a></li>
-										<li><a href="about.html">About</a></li>
+										<li><a href="{% url 'index' %}">{% trans 'Home' %}</a></li>
+										<li><a href="{% url 'catagory' %}">{% trans 'Catagory' %}</a></li>
+										<li><a href="{% url 'contact' %}">{% trans 'Contact' %}</a></li>
+										<li><a href="{% url 'about' %}">{% trans 'About' %}</a></li>
 									</ul>
 								</div>
 							</div>
@@ -86,15 +86,9 @@
 		<div class="row copyright_row">
 			<div class="col">
 				<div class="copyright d-flex flex-lg-row flex-column align-items-center justify-content-start">
-					<div class="cr_text"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                        Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                    </div>
 					<div class="ml-lg-auto cr_links">
 						<ul class="cr_list">
-							<li><a href="#">Copyright notification</a></li>
-							<li><a href="#">Terms of Use</a></li>
-							<li><a href="#">Privacy Policy</a></li>
+							<li><a href="{% url 'privacy' %}">{% trans 'Privacy Policy' %}</a></li>
 						</ul>
 					</div>
 				</div>

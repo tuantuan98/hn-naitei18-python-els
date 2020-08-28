@@ -7,14 +7,15 @@
 {% endblock %} 
 {% block content2 %}
 {% if object_list %}
-<div class="container mt-5">
- 
-<h3>{{catagory.name}}</h3>
- <div class="list-group">
-  {% for lesson in object_list %}
-  <a class="list-group-item" href="{{ lesson.get_absolute_url }}"><i class="fa fa-book fa-fw" aria-hidden="true"></i>&nbsp; {{lesson.name}}</a>
-  {% endfor %}
-</div>
+<div class="container mt-5" style="margin-bottom: 20px;">
+	<div class="row">
+		<div class="list-group col-lg-8">
+			<h3>{{catagory.name}}</h3>
+			{% for lesson in object_list %}
+			<a class="list-group-item" href="{{ lesson.get_absolute_url }}" style="margin: 5px;"><i class="fa fa-book fa-fw" aria-hidden="true"></i>&nbsp; {{lesson.name}}</a>
+			{% endfor %}
+		</div>
+	</div>
 
 </div>
 {% else %}
