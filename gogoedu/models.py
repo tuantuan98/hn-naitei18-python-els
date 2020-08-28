@@ -57,15 +57,19 @@ class Test(models.Model):
     question_num = models.IntegerField()
     name = models.CharField(max_length=50, null= True)
     time = models.IntegerField(default=600)
+
     def __str__(self):
         """String for representing the Model object."""
         return self.name
+
     def get_absolute_url(self):
         """Returns the url to access a detail record for this book."""
         return reverse('test-detail', args=[str(self.id)])
+
     def get_test_url(self):
         """Returns the url to access a detail record for this book."""
         return reverse('test-detail', args=[str(self.id)])
+
 
 class Question(models.Model):
     test = models.ForeignKey('Test', on_delete=models.SET_NULL, null=True)
@@ -87,7 +91,7 @@ class Choice(models.Model):
 
 
 class myUser(AbstractUser):
-    avatar = models.ImageField(upload_to='images/profile_pics', blank=True)
+    avatar = models.ImageField(default='/images/profile_pics/default.jpg', upload_to='images/profile_pics')
     email = models.EmailField(_('email address'))
 
     # Resize the image
@@ -106,15 +110,16 @@ class UserTest(models.Model):
     user = models.ForeignKey('myUser', on_delete=models.CASCADE)
     test = models.ForeignKey('Test', on_delete=models.CASCADE)
     correct_answer_num = models.IntegerField(default=0)
+
     def __str__(self):
         """String for representing the Model object."""
         return self.test.name
+
 
 class UserAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     user = models.ForeignKey('myUser', on_delete=models.CASCADE)
-
 
 
 class UserWord(models.Model):

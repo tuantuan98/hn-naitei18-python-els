@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_email_verification',
     'gogoedu',
     'widget_tweaks',
     'dajaxice',
@@ -144,7 +145,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en'
 LANGUAGES = [
-    ('en',_('English')),
+    ('en', _('English')),
     ('vi', _('Vietnamese')),
 ]
 TIME_ZONE = 'UTC'
@@ -172,12 +173,16 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+LOGOUT_REDIRECT_URL = '/accounts/login/?next=/gogoedu/'
+
+#Config email
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER =env('ENAME')
-EMAIL_HOST_PASSWORD =env('EPASS') #past the key or password app here
+EMAIL_HOST_USER = env('ENAME')
+EMAIL_HOST_PASSWORD = env('EPASS') #past the key or password app here
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'gogoedu'

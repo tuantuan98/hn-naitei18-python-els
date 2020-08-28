@@ -29,8 +29,8 @@ from gogoedu.views import change_language
 
 
 urlpatterns = [
-    path('change_language/', change_language, name='change_language')
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('change_language/', change_language, name='change_language'),
+]
 
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
@@ -39,6 +39,8 @@ urlpatterns += i18n_patterns(
     path('accounts/', include('django.contrib.auth.urls')),
     prefix_default_language=False,
 )
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
