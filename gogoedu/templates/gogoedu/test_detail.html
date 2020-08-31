@@ -1,44 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base_generic.html" %}
+{% load static %}
 {% load i18n %}
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Unicat project">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'styles/test.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'styles/bootstrap4/bootstrap.min.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'plugins/font-awesome-4.7.0/css/font-awesome.min.css' %}" >
-    <link rel="stylesheet" href="{% static 'styles/jquery.countdown.css' %}">
-    <link rel="stylesheet" href="{% static 'styles/test.css' %}">
-    <style type="text/css">
-        #defaultCountdown { width: 240px; height: 55px; }
-    </style>
-</head>
-<body>
-<div id="page-wrap">
-<ol>
-<h1>{{test.name}}</h1>
-<p id="defaultCountdown"></p>
-<form action="" method="POST" id="quiz">
-{% csrf_token %}
-{% for question in test.question_set.all %}
-    <li>
-    <h3><strong>{{question}}</strong></h3>
-    {% for choice in question.choice_set.all %}
-        <label class="radio" for=""><input type="radio" value="{{ choice.id }}" name="question-{{ question.id }}" >{{choice}}</label>
-        <br>
-    {% endfor %}
-    </li>
-{% endfor %}
-<input type="submit" value="{% trans 'Submit'%}">
-</form>
-</ol>
+{% block css %}
+ <link rel="stylesheet" href="{% static 'styles/jquery.countdown.css' %}">
+{% endblock %}
+{% block content %}
+<div class="team" style="margin-top: 140px;">
+    <div class="team_background parallax-window" data-parallax="scroll" data-image-src="{% static 'images/team_background.jpg'%}" data-speed="0.8"></div>
+    <div class="container">
+        <div id="page-wrap">
+        <ol>
+        <h1>{{test.name}}</h1>
+        <p id="defaultCountdown"></p><br>
+        <form action="" method="POST" id="quiz">
+        {% csrf_token %}
+        {% for question in test.question_set.all %}
+            <li>
+            <h3><strong>{{question}}</strong></h3>
+            {% for choice in question.choice_set.all %}
+                <label class="radio" for=""><input type="radio" value="{{ choice.id }}" name="question-{{ question.id }}" >{{choice}}</label>
+                <br>
+            {% endfor %}
+            </li>
+        {% endfor %}
+        <input type="submit" value="{% trans 'Submit'%}">
+        </form>
+        </ol>
+        </div>
+    </div>
 </div>
-<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
-<script src="{% static 'styles/bootstrap4/popper.js' %}"></script>
-<script src="{% static 'styles/bootstrap4/bootstrap.min.js' %}"></script>
+{%block plugin%}
+<script src="{% static 'js/jquery-3.2.1.min.js'%}"></script>
+<script src="{% static 'styles/bootstrap4/popper.js'%}"></script>
+<script src="{% static 'styles/bootstrap4/bootstrap.min.js'%}"></script>
 <script src="{% static 'js/jquery.plugin.min.js' %}"></script>
 <script src="{% static 'js/jquery.countdown.js' %}"></script>
 <script>
@@ -52,5 +46,5 @@ function time_over() {
 } 
 
 </script>
-</body>
-</html>
+{%endblock%}
+{% endblock %}

@@ -52,3 +52,7 @@
 	display: block;
 	width: 100%;
 }
+#defaultCountdown { 
+	width: 240px; 
+	height: 55px; 
+}
