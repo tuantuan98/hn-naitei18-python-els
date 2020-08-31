@@ -23,6 +23,7 @@ from django.views.generic.list import MultipleObjectMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django_email_verification import sendConfirm
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 
@@ -67,7 +68,7 @@ class Profile(LoginRequiredMixin,generic.DetailView):
     def get_context_data(self, **kwargs):
         object_list = myUser.objects.filter()
         context = super(Profile, self).get_context_data(object_list=object_list, **kwargs)
-        user = self.request.user
+        user = self.request.user 
         if not user.avatar:
             avatar = '/media/images/profile_pics/default.jpg'
         else:
@@ -173,7 +174,14 @@ class CatagoryDetailView(generic.DetailView, MultipleObjectMixin):
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
-        object_list = self.object.lesson_set.all()
+        try:
+            name = self.request.GET.get('name',)
+        except:
+            name = ''
+        if name:
+            object_list = self.object.lesson_set.filter(name__icontains=name)
+        else:
+            object_list = self.object.lesson_set.all()
         context = super(CatagoryDetailView, self).get_context_data(object_list=object_list, **kwargs)
         return context
 
@@ -292,4 +300,46 @@ class MarkLearned(generic.View):
         else:
             UserWord.objects.filter(user=request.user.id, word=wordid).delete()
             learned = False
-        return JsonResponse({'word': model_to_dict(user_word), 'learned': learned}, status=200)    
+        return JsonResponse({'word': model_to_dict(user_word), 'learned': learned}, status=200)
+    
+
+def SummaryDetailView(request):
+    is_authenticated(request)
+    template = loader.get_template('gogoedu/summary.html')
+    list_learned = UserWord.objects.filter(user=request.user.id)
+    list_memoried= UserWord.objects.filter(user=request.user.id,memoried=True)
+    list_tested = UserTest.objects.filter(user=request.user.id)
+        
+    paginator1 = Paginator(list_tested, 5)
+    page = request.GET.get('page', 1)
+    try:
+        tested_paged = paginator1.page(page)
+    except PageNotAnInteger:
+        tested_paged = paginator1.page(1)
+    except EmptyPage:
+        tested_paged = paginator1.page(paginator1.num_pages)
+    
+    paginator2 = Paginator(list_memoried, 2)
+    try:
+        memoried_paged = paginator2.page(page)
+    except PageNotAnInteger:
+        memoried_paged = paginator2.page(1)
+    except EmptyPage:
+        memoried_paged = paginator2.page(paginator2.num_pages)
+    
+    paginator3 = Paginator(list_learned, 1)
+    try:
+        learned_paged = paginator3.page(page)
+    except PageNotAnInteger:
+        learned_paged = paginator3.page(1)
+    except EmptyPage:
+        learned_paged = paginator3.page(paginator3.num_pages)
+    context = {"list_tested": tested_paged,
+                'list_learned':learned_paged,
+                'list_memoried':memoried_paged,
+                'total_learned':list_learned,
+                'total_memoried':list_memoried,
+                'total_tested':list_tested
+                }
+    return HttpResponse(template.render(context, request))
+       

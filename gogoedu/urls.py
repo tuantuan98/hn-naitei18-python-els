@@ -15,4 +15,6 @@ urlpatterns = [
 	path('results/<int:pk>', views.show_results, name='show_results'),
 	path('activate/<uidb64>/<token>', views.activate, name='activate'),
 	path('register/<int:pk>/activation', views.activation_request, name='account-activation'),
+	path('summary/', views.SummaryDetailView, name='show_summary'),
+
 ]
