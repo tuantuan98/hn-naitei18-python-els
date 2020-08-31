@@ -343,3 +343,11 @@ def SummaryDetailView(request):
                 }
     return HttpResponse(template.render(context, request))
        
+def ContactView(request):
+    return render(request, 'contact.html')
+
+def AboutView(request):
+    return render(request, 'about.html')
+
+def PrivacyView(request):
+    return render(request, 'privacy.html')

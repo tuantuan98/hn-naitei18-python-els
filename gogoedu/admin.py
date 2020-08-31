@@ -5,15 +5,36 @@ from .models import Catagory,Lesson,Word,Test,Question,Choice,UserTest,UserWord
 from nested_inline.admin import NestedStackedInline, NestedModelAdmin
 
 # Register your models here.
-admin.site.register(myUser)
-admin.site.register(Catagory)
+class MyUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name', 'date_joined', 'is_staff', 'is_active')
+    list_filter = ('date_joined', 'is_staff', 'is_active')
+    search_fields = ['username', 'email', 'first_name', 'last_name']
 
-class LessonAdmin(admin.ModelAdmin):
+admin.site.register(myUser, MyUserAdmin)
+
+class CatagoryAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+admin.site.register(Catagory, CatagoryAdmin)
+
+class WordInline(NestedStackedInline):
+    model = Word.lesson.through
+    extra = 1
+
+class LessonAdmin(NestedModelAdmin):
     list_display = ('name', 'catagory', 'description')
-    list_filter = ('name', 'catagory')
+    list_filter = ('catagory',)
+    search_fields = ['name']
+    inlines = [WordInline,]
 
 admin.site.register(Lesson, LessonAdmin)
-admin.site.register(Word)
+
+class WordAdmin(admin.ModelAdmin):
+    list_display = ('word','catagory','mean', 'type')
+    list_filter = ( 'type','lesson','catagory')
+    search_fields = ['word']
+
+admin.site.register(Word, WordAdmin)
 
 class ChoiceInline(NestedStackedInline):
     model = Choice
@@ -26,17 +47,37 @@ class QuestionInline(NestedStackedInline):
 class TestAdmin(NestedModelAdmin):
     list_display = ('question_num', 'name', 'lesson', 'time')
     list_filter = ('name', 'question_num', 'lesson' )
+    search_fields = ['name']
     inlines = [QuestionInline,]
 
 admin.site.register(Test, TestAdmin)
 
 class QuestionAdmin(NestedModelAdmin):
     list_display = ('test', 'question_text')
+    search_fields = ['question_text']
     inlines = [ChoiceInline,]
 
 admin.site.register(Question, QuestionAdmin)
-admin.site.register(Choice)
-admin.site.register(UserTest)
-admin.site.register(UserWord)
+
+class ChoiceAdmin(admin.ModelAdmin):
+    list_display = ('choice_text', 'question', 'correct')
+    list_filter = ('question', 'correct')
+    search_fields = ['choice_text']
+
+admin.site.register(Choice, ChoiceAdmin)
+
+class UserTestAdmin(admin.ModelAdmin):
+    list_display = ('user', 'test', 'correct_answer_num')
+    list_filter = ('user', 'test')
+    search_fields = ['user']
+
+admin.site.register(UserTest, UserTestAdmin)
+
+class UserWordAdmin(admin.ModelAdmin):
+    list_display = ('user', 'word', 'memoried')
+    list_filter = ( 'word', 'memoried')
+    search_fields = ['user']
+
+admin.site.register(UserWord, UserWordAdmin)
 
 
