@@ -131,7 +131,7 @@ def activation_request(request, pk):
         return render(request, "registration/account_activate.html", {'username': user.username})
 
 
-class Lesson_detail(generic.DetailView, MultipleObjectMixin):
+class Lesson_detail(LoginRequiredMixin,generic.DetailView, MultipleObjectMixin):
     model = Lesson
     paginate_by = 20
 
@@ -155,7 +155,7 @@ class Lesson_detail(generic.DetailView, MultipleObjectMixin):
 
 class CatagoryListView(generic.ListView):
     model = Catagory
-    paginate_by = 6
+    paginate_by = 2
 
     def get_queryset(self, **kwargs):
         try:
@@ -171,7 +171,7 @@ class CatagoryListView(generic.ListView):
 
 class CatagoryDetailView(generic.DetailView, MultipleObjectMixin):
     model = Catagory
-    paginate_by = 10
+    paginate_by = 1
 
     def get_context_data(self, **kwargs):
         try:
@@ -264,13 +264,6 @@ def calculate_score(user, test):
 def show_results(request, pk):
     is_authenticated(request)
     test = Test.objects.get(id=pk)
-    return render(request, 'gogoedu/show_results.html', {
-        'test': test,
-        'score': calculate_score(request.user, test)
-    })
-
-
-def show_form_correct(request, pk):
     questions = Question.objects.filter(test=test)
     choices = UserAnswer.objects.filter(
         user=request.user,

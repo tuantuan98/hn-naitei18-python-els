@@ -1,5 +1,6 @@
 {% extends "base_generic.html" %}
 {% load static %}
+{% load i18n %}
 {% block title %}<title>Categories</title>{% endblock %}
 {% block css %}
 	<link rel="stylesheet" type="text/css" href="{% static 'plugins/colorbox/colorbox.css' %}">
@@ -18,8 +19,8 @@
 					<div class="courses_search_container">
 						{%block searchform%}
 						<form action="{% url 'catagory'%}" method="get" id="courses_search_form" class="courses_search_form d-flex flex-row align-items-center justify-content-start">
-							<input type="search" class="courses_search_input" placeholder="Search Catagory"  name ='name' value="{{ request.GET.name }}">
-							<input type="submit" value="Search" class="courses_search_button ml-auto" />
+							<input type="search" class="courses_search_input" placeholder="{% trans 'Search Category' %}"  name ='name' value="{{ request.GET.name }}">
+							<input type="submit" value="{% trans 'Search'%}" class="courses_search_button ml-auto" />
 						</form>
 						{% endblock %}
 					</div>
