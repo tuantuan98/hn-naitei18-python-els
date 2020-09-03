@@ -28,11 +28,10 @@ from django.http import JsonResponse
 from django.forms.models import model_to_dict
 
 from .forms import RegisterForm, UserUpdateForm
-from gogoedu.models import myUser, Lesson, Word, Catagory, Test, UserTest, Question, Choice, UserAnswer, UserWord
-
+from gogoedu.models import myUser, Lesson, Word, Catagory, Test, UserTest, Question, Choice, UserAnswer, UserWord, \
+    TestResult
 
 from PIL import Image
-
 
 from django.shortcuts import get_object_or_404
 from django.db import transaction
@@ -62,13 +61,13 @@ def change_language(request):
     return response
 
 
-class Profile(LoginRequiredMixin,generic.DetailView):
+class Profile(LoginRequiredMixin, generic.DetailView):
     model = myUser
 
     def get_context_data(self, **kwargs):
         object_list = myUser.objects.filter()
         context = super(Profile, self).get_context_data(object_list=object_list, **kwargs)
-        user = self.request.user 
+        user = self.request.user
         if not user.avatar:
             avatar = '/media/images/profile_pics/default.jpg'
         else:
@@ -131,7 +130,7 @@ def activation_request(request, pk):
         return render(request, "registration/account_activate.html", {'username': user.username})
 
 
-class Lesson_detail(LoginRequiredMixin,generic.DetailView, MultipleObjectMixin):
+class Lesson_detail(LoginRequiredMixin, generic.DetailView, MultipleObjectMixin):
     model = Lesson
     paginate_by = 20
 
@@ -139,10 +138,11 @@ class Lesson_detail(LoginRequiredMixin,generic.DetailView, MultipleObjectMixin):
         return reverse('lesson-detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
-        object_list = Word.objects.filter(lesson=self.get_object())
+        lesson = self.get_object()
+        object_list = Word.objects.filter(lesson=lesson)
         context = super(Lesson_detail, self).get_context_data(object_list=object_list, **kwargs)
         marked_word_list = []
-        new_list= []
+        new_list = []
         for word in object_list:
             if not UserWord.objects.filter(user=self.request.user.id, word=word.id).first():
                 new_list.append(word)
@@ -150,6 +150,8 @@ class Lesson_detail(LoginRequiredMixin,generic.DetailView, MultipleObjectMixin):
                 marked_word_list.append(word)
         context['marked_word_list'] = marked_word_list
         context['new_list'] = new_list
+        # if UserTest.objects.filter(user=self.request.user, test=lesson.test_set.first.id):
+        #     context['my_test'] = UserTest.objects.filter(user=self.request.user, test=lesson.test).first()
         return context
 
 
@@ -159,7 +161,7 @@ class CatagoryListView(generic.ListView):
 
     def get_queryset(self, **kwargs):
         try:
-            name = self.request.GET.get('name',)
+            name = self.request.GET.get('name', )
         except:
             name = ''
         if name:
@@ -175,7 +177,7 @@ class CatagoryDetailView(generic.DetailView, MultipleObjectMixin):
 
     def get_context_data(self, **kwargs):
         try:
-            name = self.request.GET.get('name',)
+            name = self.request.GET.get('name', )
         except:
             name = ''
         if name:
@@ -216,6 +218,25 @@ def is_authenticated(request):
 def test_detail_view(request, pk):
     is_authenticated(request)
     test = get_object_or_404(Test, pk=pk)
+
+    if UserTest.objects.filter(user=request.user, test=test):
+        my_test = UserTest.objects.filter(user=request.user, test=test).first()
+        test_time = my_test.remain_time
+        my_test.is_paused = False
+        my_test.save()
+    else:
+        my_test = UserTest(user=request.user, test=test)
+        test_time = test.time
+        my_test.save()
+
+    choices = UserAnswer.objects.filter(
+        user=request.user,
+        question__test=test,
+    )
+    listchoices = []
+    for choices1 in choices:
+        listchoices.append(choices1.choice)
+
     if request.method == 'POST':
         data = {}
         for key, value in request.POST.items():
@@ -225,19 +246,58 @@ def test_detail_view(request, pk):
             choice_id = request.POST.get(key)
             data[question_id] = choice_id
         perform_test(request.user, data, test)
+        if UserTest.objects.filter(user=request.user, test=test):
+            UserTest.objects.filter(user=request.user, test=test).delete()
         return redirect(reverse('show_results', args=(test.id,)))
-    return render(request, 'gogoedu/test_detail.html', context={'test': test})
+
+    context = {
+        'test': test,
+        'test_time': test_time,
+        'my_test': my_test,
+        'choices': listchoices,
+    }
+    return render(request, 'gogoedu/test_detail.html', context)
+
+
+class TestSave(generic.View):
+
+    def post(self, request, pk):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        test = get_object_or_404(Test, pk=pk)
+        data = {}
+        for key, value in request.POST.items():
+            if key == 'csrfmiddlewaretoken':
+                continue
+            question_id = key.split('-')[1]
+            choice_id = request.POST.get(key)
+            data[question_id] = choice_id
+        perform_test(request.user, data, test)
+        return JsonResponse({'data': data}, status=200)
+
+
+class TestPause(generic.View):
+
+    def post(self, request, pk):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        test = get_object_or_404(Test, pk=pk)
+        my_test = UserTest.objects.get(user=request.user, test=test)
+        my_test.is_paused = True
+        my_test.remain_time = request.POST.get('test_time')
+        my_test.save()
+        # my_test.update(is_paused=not my_test.is_paused)
+        return redirect('lesson-detail', test.lesson.id)
 
 
 class SuspiciousOperation(Exception):
-    def __init__(self,value):
+    def __init__(self, value):
         print(value)
 
 
 def perform_test(user, data, test):
     with transaction.atomic():
-        UserAnswer.objects.filter(user=user,
-                                  question__test=test).delete()
+        UserAnswer.objects.filter(user=user, question__test=test).delete()
         for question_id, choice_id in data.items():
             question = Question.objects.get(id=question_id)
             choice_id = int(choice_id)
@@ -245,18 +305,17 @@ def perform_test(user, data, test):
                 raise SuspiciousOperation('Choice is not valid for this question')
             UserAnswer.objects.create(user=user,
                                       question=question,
-                                      choice_id=choice_id,
-            )
+                                      choice_id=choice_id, )
 
 
 def calculate_score(user, test):
     questions = Question.objects.filter(test=test)
     correct_choices = UserAnswer.objects.filter(
-        user = user,
-        question__test = test,
-        choice__correct = True
+        user=user,
+        question__test=test,
+        choice__correct=True
     )
-    score = UserTest(user=user, test=test, correct_answer_num=correct_choices.count())
+    score = TestResult(user=user, test=test, correct_answer_num=correct_choices.count())
     score.save()
     return correct_choices.count()
 
@@ -264,18 +323,28 @@ def calculate_score(user, test):
 def show_results(request, pk):
     is_authenticated(request)
     test = Test.objects.get(id=pk)
+    return render(request, 'gogoedu/show_results.html', {
+        'test': test,
+        'score': calculate_score(request.user, test)
+    })
+
+
+def show_form_correct(request, pk):
+    is_authenticated(request)
+    test = Test.objects.get(id=pk)
     questions = Question.objects.filter(test=test)
     choices = UserAnswer.objects.filter(
         user=request.user,
         question__test=test,
     )
-    listchoices=[]
+    listchoices = []
     for choices1 in choices:
-        listchoices.append(choices1.choice) 
+        listchoices.append(choices1.choice)
+    UserAnswer.objects.filter(user=request.user, question__test=test).delete()
     return render(request, 'gogoedu/show_results.html', {
         'test': test,
         'score': calculate_score(request.user, test),
-        'choices':listchoices,
+        'choices': listchoices,
     })
 
 
@@ -294,15 +363,15 @@ class MarkLearned(generic.View):
             UserWord.objects.filter(user=request.user.id, word=wordid).delete()
             learned = False
         return JsonResponse({'word': model_to_dict(user_word), 'learned': learned}, status=200)
-    
 
-def SummaryDetailView(request):
+
+def summary_detail_view(request):
     is_authenticated(request)
     template = loader.get_template('gogoedu/summary.html')
     list_learned = UserWord.objects.filter(user=request.user.id)
-    list_memoried= UserWord.objects.filter(user=request.user.id,memoried=True)
+    list_memoried = UserWord.objects.filter(user=request.user.id, memoried=True)
     list_tested = UserTest.objects.filter(user=request.user.id)
-        
+
     paginator1 = Paginator(list_tested, 5)
     page = request.GET.get('page', 1)
     try:
@@ -311,7 +380,7 @@ def SummaryDetailView(request):
         tested_paged = paginator1.page(1)
     except EmptyPage:
         tested_paged = paginator1.page(paginator1.num_pages)
-    
+
     paginator2 = Paginator(list_memoried, 2)
     try:
         memoried_paged = paginator2.page(page)
@@ -319,7 +388,7 @@ def SummaryDetailView(request):
         memoried_paged = paginator2.page(1)
     except EmptyPage:
         memoried_paged = paginator2.page(paginator2.num_pages)
-    
+
     paginator3 = Paginator(list_learned, 1)
     try:
         learned_paged = paginator3.page(page)
@@ -328,19 +397,36 @@ def SummaryDetailView(request):
     except EmptyPage:
         learned_paged = paginator3.page(paginator3.num_pages)
     context = {"list_tested": tested_paged,
-                'list_learned':learned_paged,
-                'list_memoried':memoried_paged,
-                'total_learned':list_learned,
-                'total_memoried':list_memoried,
-                'total_tested':list_tested
-                }
+               'list_learned': learned_paged,
+               'list_memoried': memoried_paged,
+               'total_learned': list_learned,
+               'total_memoried': list_memoried,
+               'total_tested': list_tested
+               }
     return HttpResponse(template.render(context, request))
-       
-def ContactView(request):
+
+
+def contact_view(request):
     return render(request, 'contact.html')
 
-def AboutView(request):
+
+def about_view(request):
     return render(request, 'about.html')
 
-def PrivacyView(request):
+
+def privacy_view(request):
     return render(request, 'privacy.html')
+
+
+class GetTestInfo(generic.View):
+
+    def get(self, request, pk):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        if UserTest.objects.filter(user=request.user.id, test=request.GET.get('test_id',)).first():
+            my_test = UserTest.objects.filter(user=request.user.id, test=request.GET.get('test_id',)).first()
+            tested = True
+        else:
+            my_test = UserTest(user=request.user, test=Test.objects.get(id=request.GET.get('test_id',)))
+            tested = False
+        return JsonResponse({'my_test_remain_time': my_test.remain_time, 'tested': tested}, status=200)
