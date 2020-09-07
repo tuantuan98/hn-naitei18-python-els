@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'dajaxice',
     'dajax',
     'nested_inline',
+    'background_task',
 ]
 
 MIDDLEWARE = [

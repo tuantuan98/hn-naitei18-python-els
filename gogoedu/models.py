@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from PIL import Image
-
+from django.utils import timezone
 
 class Catagory(models.Model):
     name = models.CharField(max_length=255)
@@ -106,10 +106,25 @@ class myUser(AbstractUser):
     #         image.save(self.avatar.path)
 
 
-class UserTest(models.Model):
+class TestResult(models.Model):
     user = models.ForeignKey('myUser', on_delete=models.CASCADE)
     test = models.ForeignKey('Test', on_delete=models.CASCADE)
     correct_answer_num = models.IntegerField(default=0)
+
+    def __str__(self):
+        """String for representing the Model object."""
+        return self.test.name
+
+
+class UserTest(models.Model):
+    user = models.ForeignKey('myUser', on_delete=models.CASCADE)
+    test = models.ForeignKey('Test', on_delete=models.CASCADE)
+    is_paused = models.BooleanField(default=False)
+    remain_time = models.IntegerField(default=20)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        unique_together = (("user", "test"),)
 
     def __str__(self):
         """String for representing the Model object."""
@@ -133,3 +148,4 @@ class UserWord(models.Model):
 
     class Meta:
         unique_together = (("user", "word"),)
+

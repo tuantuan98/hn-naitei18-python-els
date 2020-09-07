@@ -5,18 +5,36 @@
 		<input type="search" class="courses_search_input" placeholder="{% trans 'Search Lesson'%}"  name ='name' value="{{ request.GET.name }}">
 		<input type="submit" value="{% trans 'Search' %}" class="courses_search_button ml-auto" />
 	</form> 
-{% endblock %} 
-{% block content2 %}
-{% if object_list %}
-<div class="container mt-5" style="margin-bottom: 20px;">
-	<div class="row">
-		<div class="list-group col-lg-8">
-			<h3>{{catagory.name}}</h3>
-			{% for lesson in object_list %}
-			<a class="list-group-item" href="{{ lesson.get_absolute_url }}" style="margin: 5px;"><i class="fa fa-book fa-fw" aria-hidden="true"></i>&nbsp; {{lesson.name}}</a>
-			{% endfor %}
+{% endblock %}
+{% block home %}
+	<div class="home">
+		<div class="breadcrumbs_container">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<div class="breadcrumbs">
+							<ul>
+								<li><a href="{% url 'index' %}">{% trans 'Home' %}</a></li>
+								<li><a href="{% url 'catagory' %}">{% trans 'Catagory' %}</a></li>
+								<li>{{ catagory.name }}</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
+{% endblock %}
+{% block content2 %}
+{% if object_list %}
+<div class="container mt-5 mb-5">
+
+<h3>{{catagory.name}}</h3>
+ <div class="list-group mt-3">
+  {% for lesson in object_list %}
+  <a class="list-group-item" href="{{ lesson.get_absolute_url }}"><i class="fa fa-book fa-fw" aria-hidden="true"></i>&nbsp; {{lesson.name}}</a>
+  {% endfor %}
+</div>
 
 </div>
 {% else %}
