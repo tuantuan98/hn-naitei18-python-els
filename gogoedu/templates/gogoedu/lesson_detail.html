@@ -377,19 +377,21 @@
                             <div class="tab_panel tab_panel_3">
                                 <div class="tab_panel_title">Test</div>
 
-                                <div class="tab_panel_content">
+                                <div class="tab_panel_content" id="test-desc">
                                     <div class="accordions">
 
                                         <div class="elements_accordions">
                                             {% for test in lesson.test_set.all %}
                                             <div class="accordion_container">
                                                 <div class="accordion d-flex flex-row align-items-center">
-                                                    <div><a href="{{test.get_absolute_url}}"
-                                                            target="_blank">{{test}}</a></div>
+                                                    <div><a target="_blank">{{test}}</a></div>
                                                 </div>
-                                                <div class="accordion_panel">
+                                                <div class="accordion_panel" id="test-detail-content" data-id="{{test.id}}">
                                                     <p>Questions Number : {{test.question_num}}</p>
-                                                    <p>Time : {{test.time}}</p>
+                                                    <p>Time : {{test.time}} s</p>
+                                                    <p id="remainTime"></p>
+                                                    <a type="button" id="startTestBtn" class="btn btn-outline-success mt-3"
+                                                           href="{{test.get_absolute_url}}" target="_blank">{% trans 'Resume' %}</a>
                                                 </div>
                                             </div>
                                             {% endfor %}
@@ -477,6 +479,25 @@
                 }
             })
         })
+
+        $.ajax({
+            url: '/gogoedu/lesson/' + lessonId + '/tests/',
+            data: {
+                csrfmiddlewaretoken: csrfToken,
+                lesson_id: lessonId,
+                test_id: $('#test-detail-content').data('id')
+            },
+            type: 'get',
+            success: function (response) {
+                if (response.tested) {
+                    $('#remainTime').text("Remain time : " + response.my_test_remain_time + " s")
+                    $('#startTestBtn').text("Resume")
+                } else {
+                    $('#startTestBtn').text("Start")
+                }
+            }
+        })
+
     });
 
     function openCity() {
