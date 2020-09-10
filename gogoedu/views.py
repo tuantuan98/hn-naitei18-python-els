@@ -11,7 +11,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
-
+from background_task.models import Task
 from .forms import RegisterForm
 from django.views import generic
 from django.conf import settings
@@ -22,7 +22,7 @@ from django.views.generic.edit import FormMixin
 from django.views.generic.list import MultipleObjectMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django_email_verification import sendConfirm
-
+from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
@@ -37,7 +37,8 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 
 from django.core.exceptions import PermissionDenied
-
+from background_task import background
+from datetime import datetime, timedelta
 
 def index(request):
     return render(request, 'index.html')
@@ -141,13 +142,23 @@ class Lesson_detail(LoginRequiredMixin, generic.DetailView, MultipleObjectMixin)
         lesson = self.get_object()
         object_list = Word.objects.filter(lesson=lesson)
         context = super(Lesson_detail, self).get_context_data(object_list=object_list, **kwargs)
+        tests = lesson.test_set.all()
+        user_test_list = []
         marked_word_list = []
         new_list = []
+        tested_list = []
+        for test in tests:
+            if UserTest.objects.filter(user=self.request.user.id, test=test.id).first():
+                user_test_list.append(UserTest.objects.filter(user=self.request.user.id, test=test.id).first())
+                tested_list.append(test)
+
         for word in object_list:
             if not UserWord.objects.filter(user=self.request.user.id, word=word.id).first():
                 new_list.append(word)
             else:
                 marked_word_list.append(word)
+        context['user_test_list'] = user_test_list
+        context['tested_list'] = tested_list
         context['marked_word_list'] = marked_word_list
         context['new_list'] = new_list
         # if UserTest.objects.filter(user=self.request.user, test=lesson.test_set.first.id):
@@ -248,11 +259,21 @@ def test_detail_view(request, pk):
         perform_test(request.user, data, test)
         if UserTest.objects.filter(user=request.user, test=test):
             UserTest.objects.filter(user=request.user, test=test).delete()
+        Task.objects.filter(task_params='[['+str(request.user.id)+', '+str(test.id)+'], {}]').delete()
         return redirect(reverse('show_results', args=(test.id,)))
-
+    if not Task.objects.filter(task_params='[['+str(request.user.id)+', '+str(test.id)+'], {}]'):
+        countdown_time(request.user.id,test.id, schedule=timedelta(seconds=test_time))
+    task=Task.objects.filter(task_params='[['+str(request.user.id)+', '+str(test.id)+'], {}]')
+    if not timezone.now()>task[0].run_at:
+        time=task[0].run_at-timezone.now()
+        set_time=time.seconds
+    else:
+        set_time=0
+    
+    
     context = {
         'test': test,
-        'test_time': test_time,
+        'test_time': set_time,
         'my_test': my_test,
         'choices': listchoices,
     }
@@ -286,7 +307,9 @@ class TestPause(generic.View):
         my_test.is_paused = True
         my_test.remain_time = request.POST.get('test_time')
         my_test.save()
+        Task.objects.filter(task_params='[['+str(request.user.id)+', '+str(test.id)+'], {}]').delete()
         # my_test.update(is_paused=not my_test.is_paused)
+        
         return redirect('lesson-detail', test.lesson.id)
 
 
@@ -320,7 +343,7 @@ def calculate_score(user, test):
     return correct_choices.count()
 
 
-def show_results(request, pk):
+def show_form_correct(request, pk):
     is_authenticated(request)
     test = Test.objects.get(id=pk)
     return render(request, 'gogoedu/show_results.html', {
@@ -340,12 +363,13 @@ def show_form_correct(request, pk):
     listchoices = []
     for choices1 in choices:
         listchoices.append(choices1.choice)
-    UserAnswer.objects.filter(user=request.user, question__test=test).delete()
-    return render(request, 'gogoedu/show_results.html', {
+    context = {
         'test': test,
         'score': calculate_score(request.user, test),
         'choices': listchoices,
-    })
+    }
+    UserAnswer.objects.filter(user=request.user, question__test=test).delete()
+    return render(request, 'gogoedu/show_results.html', context)
 
 
 class MarkLearned(generic.View):
@@ -417,7 +441,6 @@ def about_view(request):
 def privacy_view(request):
     return render(request, 'privacy.html')
 
-
 class GetTestInfo(generic.View):
 
     def get(self, request, pk):
@@ -430,3 +453,19 @@ class GetTestInfo(generic.View):
             my_test = UserTest(user=request.user, test=Test.objects.get(id=request.GET.get('test_id',)))
             tested = False
         return JsonResponse({'my_test_remain_time': my_test.remain_time, 'tested': tested}, status=200)
+@background(schedule=20)
+def countdown_time(user_id,test_id):
+    test = get_object_or_404(Test, pk=test_id)
+    user=myUser.objects.get(id=user_id)
+    choices = UserAnswer.objects.filter(
+        user=user,
+        question__test=test,
+    )
+    listchoices = []
+    for choices1 in choices:
+        listchoices.append(choices1.choice)
+    
+    UserAnswer.objects.filter(user=user, question__test=test).delete()
+    kq=calculate_score(user, test)
+    if UserTest.objects.filter(user=user, test=test):
+        UserTest.objects.filter(user=user, test=test).delete()

@@ -389,9 +389,17 @@
                                                 <div class="accordion_panel" id="test-detail-content" data-id="{{test.id}}">
                                                     <p>Questions Number : {{test.question_num}}</p>
                                                     <p>Time : {{test.time}} s</p>
-                                                    <p id="remainTime"></p>
-                                                    <a type="button" id="startTestBtn" class="btn btn-outline-success mt-3"
-                                                           href="{{test.get_absolute_url}}" target="_blank">{% trans 'Resume' %}</a>
+                                                    <p id="remainTime">
+                                                    {% for user_test in user_test_list %}
+                                                        {% if user_test.test is test and user_test.is_paused is true %}
+                                                            {{user_test.remain_time}}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    </p>
+                                                    <a  type="button" id="startTestBtn{{test.id}}" class="btn btn-outline-success mt-3"
+                                                        href="{{test.get_absolute_url}}" target="_blank">
+                                                           {% if test in tested_list %}{% trans 'Resume' %}{% else %}{% trans 'Start' %}{% endif %}
+                                                    </a>
                                                 </div>
                                             </div>
                                             {% endfor %}
