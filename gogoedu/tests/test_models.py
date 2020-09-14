@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from gogoedu.models import Test,Lesson
+from gogoedu.models import Test,Lesson,Word
+
 
 class TestModelTest(TestCase):
     @classmethod
@@ -48,6 +49,7 @@ class TestModelTest(TestCase):
         # This will also fail if the urlconf is not defined.
         self.assertEquals(test.get_absolute_url(), '/gogoedu/test/1')
 
+
 class TestModelLesson(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -83,3 +85,55 @@ class TestModelLesson(TestCase):
         lesson = Lesson.objects.get(id=1)
         # This will also fail if the urlconf is not defined.
         self.assertEquals(lesson.get_absolute_url(), '/gogoedu/lesson/1')
+
+
+class WordModelTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Set up non-modified objects used by all test methods
+        Word.objects.create(word='Dolphin', mean='Ca heo', type='V')
+
+    def test_word_label(self):
+        word = Word.objects.get(id=1)
+        field_label = word._meta.get_field('word').verbose_name
+        self.assertEquals(field_label, 'word')
+
+    def test_catagory_label(self):
+        word = Word.objects.get(id=1)
+        field_label = word._meta.get_field('catagory').verbose_name
+        self.assertEquals(field_label, 'catagory')
+
+    def test_mean_label(self):
+        word = Word.objects.get(id=1)
+        field_label = word._meta.get_field('mean').verbose_name
+        self.assertEquals(field_label, 'mean')
+
+    def test_type_label(self):
+        word = Word.objects.get(id=1)
+        field_label = word._meta.get_field('type').verbose_name
+        self.assertEquals(field_label, 'type')
+
+    def test_lesson_label(self):
+        word = Word.objects.get(id=1)
+        field_label = word._meta.get_field('lesson').verbose_name
+        self.assertEquals(field_label, 'lesson')
+
+    def test_word_max_length(self):
+        word = Word.objects.get(id=1)
+        max_length = word._meta.get_field('word').max_length
+        self.assertEquals(max_length, 255)
+
+    def test_mean_max_length(self):
+        word = Word.objects.get(id=1)
+        max_length = word._meta.get_field('mean').max_length
+        self.assertEquals(max_length, 255)
+
+    def test_type_max_length(self):
+        word = Word.objects.get(id=1)
+        max_length = word._meta.get_field('type').max_length
+        self.assertEquals(max_length, 10)
+
+    def test_object_word_is_name(self):
+        word = Word.objects.get(id=1)
+        expected_object_name = f'{word.word}'
+        self.assertEquals(expected_object_name, str(word))
