@@ -346,15 +346,6 @@ def calculate_score(user, test):
 def show_form_correct(request, pk):
     is_authenticated(request)
     test = Test.objects.get(id=pk)
-    return render(request, 'gogoedu/show_results.html', {
-        'test': test,
-        'score': calculate_score(request.user, test)
-    })
-
-
-def show_form_correct(request, pk):
-    is_authenticated(request)
-    test = Test.objects.get(id=pk)
     questions = Question.objects.filter(test=test)
     choices = UserAnswer.objects.filter(
         user=request.user,
@@ -394,7 +385,7 @@ def summary_detail_view(request):
     template = loader.get_template('gogoedu/summary.html')
     list_learned = UserWord.objects.filter(user=request.user.id)
     list_memoried = UserWord.objects.filter(user=request.user.id, memoried=True)
-    list_tested = UserTest.objects.filter(user=request.user.id)
+    list_tested = TestResult.objects.filter(user=request.user.id)
 
     paginator1 = Paginator(list_tested, 5)
     page = request.GET.get('page', 1)

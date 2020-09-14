@@ -45,8 +45,6 @@ INSTALLED_APPS = [
     'django_email_verification',
     'gogoedu',
     'widget_tweaks',
-    'dajaxice',
-    'dajax',
     'nested_inline',
     'background_task',
 ]
@@ -99,10 +97,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 STATICFILES_FINDERS = (
    'django.contrib.staticfiles.finders.FileSystemFinder',
    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-   'dajaxice.finders.DajaxiceFinder',
+#    'dajaxice.finders.DajaxiceFinder',
 )
 
-DAJAXICE_MEDIA_PREFIX = 'dajaxice'
+# DAJAXICE_MEDIA_PREFIX = 'dajaxice'
 
 WSGI_APPLICATION = 'elearning.wsgi.application'
 
