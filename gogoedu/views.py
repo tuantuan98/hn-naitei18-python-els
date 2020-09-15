@@ -343,14 +343,6 @@ def calculate_score(user, test):
     return correct_choices.count()
 
 
-def show_form_correct(request, pk):
-    is_authenticated(request)
-    test = Test.objects.get(id=pk)
-    return render(request, 'gogoedu/show_results.html', {
-        'test': test,
-        'score': calculate_score(request.user, test)
-    })
-
 
 def show_form_correct(request, pk):
     is_authenticated(request)
